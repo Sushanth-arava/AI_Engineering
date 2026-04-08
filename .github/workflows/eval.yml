@@ -2,9 +2,9 @@ name: RAG Evaluation CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [master]
   push:
-    branches: [main]
+    branches: [master]
 
 jobs:
   # Fast PR check — mocked unit tests, no API keys required
