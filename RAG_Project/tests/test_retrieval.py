@@ -1,5 +1,6 @@
 """
 RAG pipeline tests — two tiers:
+# CI test trigger
 
   Unit tests (default, no API keys needed):
       pytest tests/
