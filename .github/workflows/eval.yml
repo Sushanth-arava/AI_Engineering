@@ -1,0 +1,81 @@
+name: RAG Evaluation CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  # Fast PR check — mocked unit tests, no API keys required
+  unit-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: RAG_Project
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run unit tests (mocked, no API key needed)
+        run: pytest tests/ -v --tb=short -m "not integration"
+
+  # Quality gate — runs live pipeline against golden dataset
+  # Requires OPENAI_API_KEY secret and network access
+  evaluate:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    defaults:
+      run:
+        working-directory: RAG_Project
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Cache ChromaDB vector store
+        uses: actions/cache@v4
+        with:
+          path: RAG_Project/chroma_db
+          key: chroma-db-${{ hashFiles('RAG_Project/eval/golden_dataset.json', 'RAG_Project/src/config/config.py') }}
+
+      - name: Run RAG evaluation (CI quality gate)
+        run: python eval/run_eval.py --fail-on-threshold --top-k 5
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+  # Optional nightly job — integration tests against live services
+  integration-tests:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    defaults:
+      run:
+        working-directory: RAG_Project
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run integration tests
+        run: pytest tests/ -v --tb=short -m integration
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
