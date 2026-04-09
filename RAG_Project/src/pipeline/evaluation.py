@@ -3,9 +3,8 @@
 import json
 import os
 from typing import List, Dict
-from datasets import Dataset
 import logging
-from ragas import evaluate as ragas_evaluate
+from ragas import evaluate as ragas_evaluate, EvaluationDataset, SingleTurnSample
 from ragas.metrics import (
     faithfulness,
     answer_relevancy,
@@ -68,14 +67,14 @@ class RAGEvaluator:
         qa_pairs = self.load_golden_dataset(golden_dataset_path)
         results = self.run_pipeline_on_dataset(qa_pairs, top_k=top_k)
 
-        dataset = Dataset.from_list(
-            [
-                {
-                    "question": r["question"],
-                    "answer": r["answer"],
-                    "ground_truth": r["ground_truth"],
-                    "contexts": r["contexts"],
-                }
+        dataset = EvaluationDataset(
+            samples=[
+                SingleTurnSample(
+                    user_input=r["question"],
+                    response=r["answer"],
+                    reference=r["ground_truth"],
+                    retrieved_contexts=r["contexts"],
+                )
                 for r in results
             ]
         )
