@@ -84,7 +84,7 @@ class RAGEvaluator:
             dataset,
             metrics=[faithfulness, answer_relevancy, context_recall, context_precision],
         )
-        score_dict = scores.to_pandas().mean().to_dict()
+        score_dict = scores.to_pandas().select_dtypes(include="number").mean().to_dict()
         logger.info(f"Evaluation scores: {score_dict}")
 
         # Save results
