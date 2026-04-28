@@ -1,0 +1,26 @@
+# LangChain core
+langchain-core
+langchain-openai
+langchain-community
+langchain-text-splitters
+langchain-chroma
+langchain-experimental
+langchain-classic
+
+# Vector store
+chromadb
+
+# Document loaders
+pypdf
+
+# BM25 retrieval
+rank-bm25
+
+# Environment
+python-dotenv
+
+# Data validation
+pydantic[email]
+
+# UI
+streamlit
