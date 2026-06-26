@@ -26,8 +26,6 @@ def chat_node(state:ChatState):
 
 checkpointer=MemorySaver()
 
-
-
 graph=StateGraph(ChatState)
 
 graph.add_node('chat_node',chat_node)
@@ -41,6 +39,7 @@ initial_state={'messages':[HumanMessage(content="What is the capital of France?"
 
 # print(result['messages'][-1].content)
 
+thread_id='1'
 while True:
 
     user_message=input("Type: ")
@@ -49,7 +48,11 @@ while True:
 
     if user_message.strip().lower() in ['exit','quit','bye']:
         break
+    
+    config = {
+        'configurable':{'thread_id':thread_id}
+    }
 
-    result = chatbot.invoke({"messages":[HumanMessage(content=user_message)]})
+    result = chatbot.invoke({"messages":[HumanMessage(content=user_message)]},config=config)
 
     print("AI: ", result['messages'][-1].content)

@@ -1,0 +1,4 @@
+requests
+openai
+twilio
+python-dotenv
